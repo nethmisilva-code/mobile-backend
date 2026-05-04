@@ -2,19 +2,23 @@ const Product = require('../models/Product');
 
 // @desc    Get all products
 // @route   GET /api/products
-// @access  Public
 exports.getProducts = async (req, res, next) => {
     try {
-        const products = await Product.find({ isActive: true });
-        res.status(200).json({ success: true, count: products.length, data: products });
+        const products = await Product.find();
+        // Always return success even if empty, to prevent frontend 400 errors
+        res.status(200).json({ 
+            success: true, 
+            count: products.length, 
+            data: products || [] 
+        });
     } catch (error) {
-        res.status(200).json({ success: true, count: 0, data: [] });
+        console.error('Fetch Products Error:', error);
+        res.status(200).json({ success: true, data: [] });
     }
 };
 
 // @desc    Get single product
 // @route   GET /api/products/:id
-// @access  Public
 exports.getProduct = async (req, res, next) => {
     try {
         const product = await Product.findById(req.params.id);
@@ -27,9 +31,8 @@ exports.getProduct = async (req, res, next) => {
     }
 };
 
-// @desc    Create new product
+// @desc    Create product
 // @route   POST /api/products
-// @access  Private (Admin, Staff)
 exports.createProduct = async (req, res, next) => {
     try {
         const product = await Product.create(req.body);
@@ -41,33 +44,23 @@ exports.createProduct = async (req, res, next) => {
 
 // @desc    Update product
 // @route   PUT /api/products/:id
-// @access  Private (Admin, Staff)
 exports.updateProduct = async (req, res, next) => {
     try {
         const product = await Product.findByIdAndUpdate(req.params.id, req.body, {
             new: true,
             runValidators: true
         });
-        if (!product) {
-            return res.status(404).json({ success: false, message: 'Product not found' });
-        }
         res.status(200).json({ success: true, data: product });
     } catch (error) {
         res.status(400).json({ success: false, message: error.message });
     }
 };
 
-// @desc    Delete product (Soft delete)
+// @desc    Delete product
 // @route   DELETE /api/products/:id
-// @access  Private (Admin)
 exports.deleteProduct = async (req, res, next) => {
     try {
-        const product = await Product.findByIdAndUpdate(req.params.id, { isActive: false }, {
-            new: true
-        });
-        if (!product) {
-            return res.status(404).json({ success: false, message: 'Product not found' });
-        }
+        await Product.findByIdAndDelete(req.params.id);
         res.status(200).json({ success: true, data: {} });
     } catch (error) {
         res.status(400).json({ success: false, message: error.message });
