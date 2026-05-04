@@ -8,142 +8,119 @@ dotenv.config();
 
 const products = [
     {
-        productCode: 'TEA-BLK-001',
+        productCode: 'TEA001',
         name: 'Ceylon Black BOP',
         category: 'Black Tea',
         teaType: 'BOP',
-        price: 2500,
-        stockQuantity: 15,
-        reorderLevel: 5,
-        isAvailable: true,
-        image: 'https://images.unsplash.com/photo-1571934811356-5cc061b6821f?q=80&w=800&auto=format&fit=crop'
+        price: 1200,
+        stockQuantity: 150,
+        reorderLevel: 20,
+        image: 'https://images.unsplash.com/photo-1594631252845-29fc458631b6'
     },
     {
-        productCode: 'TEA-GRN-002',
-        name: 'Pure Green Leaf',
-        category: 'Green Tea',
-        teaType: 'Green',
-        price: 1800,
-        stockQuantity: 0,
-        reorderLevel: 5,
-        isAvailable: false,
-        image: 'https://images.unsplash.com/photo-1556679343-c7306c1976bc?q=80&w=800&auto=format&fit=crop'
-    },
-    {
-        productCode: 'TEA-WHT-003',
-        name: 'Silver Tips White',
-        category: 'White Tea',
-        teaType: 'Tips',
-        price: 8500,
-        stockQuantity: 8,
-        reorderLevel: 5,
-        isAvailable: true,
-        image: 'https://images.unsplash.com/photo-1576092768241-dec231879fc3?q=80&w=800&auto=format&fit=crop'
-    },
-    {
-        productCode: 'TEA-PRM-004',
-        name: 'Organic Earl Grey',
-        category: 'Premium',
-        teaType: 'Infusion',
-        price: 3200,
-        stockQuantity: 0,
-        reorderLevel: 5,
-        isAvailable: false,
-        image: 'https://images.unsplash.com/photo-1597481499750-3e6b22637e12?q=80&w=800&auto=format&fit=crop'
-    },
-    {
-        productCode: 'TEA-MSL-005',
+        productCode: 'TEA002',
         name: 'Masala Chai Mix',
-        category: 'Black Tea',
-        teaType: 'Spiced',
+        category: 'Flavored Tea',
+        teaType: 'Blend',
         price: 1500,
+        stockQuantity: 80,
+        reorderLevel: 15,
+        image: 'https://images.unsplash.com/photo-1544787210-2211d44b565a'
+    },
+    {
+        productCode: 'TEA003',
+        name: 'Green Tea Pure',
+        category: 'Green Tea',
+        teaType: 'Leaf',
+        price: 1800,
+        stockQuantity: 60,
+        reorderLevel: 10,
+        image: 'https://images.unsplash.com/photo-1564890369478-c89ca6d9cde9'
+    },
+    {
+        productCode: 'TEA004',
+        name: 'Silver Tips',
+        category: 'White Tea',
+        teaType: 'Premium',
+        price: 4500,
         stockQuantity: 25,
         reorderLevel: 5,
-        isAvailable: true,
-        image: 'https://images.unsplash.com/photo-1544787219-7f47ccb76574?q=80&w=800&auto=format&fit=crop'
-    }
-];
-
-const users = [
-    {
-        name: 'System Admin',
-        email: 'admin@ceylonsync.com',
-        password: 'admin123',
-        role: 'admin'
+        image: 'https://images.unsplash.com/photo-1563911891283-14c90772bb76'
     },
     {
-        name: 'John Customer',
-        email: 'customer@gmail.com',
-        password: 'customer123',
-        role: 'customer'
-    },
-    {
-        name: 'Jane Employee',
-        email: 'employee@ceylonsync.com',
-        password: 'employee123',
-        role: 'employee'
-    }
-];
-
-// 2 Pre-registered suppliers as requested
-const suppliers = [
-    {
-        name: 'Nuwara Eliya Green Leaf Estate',
-        email: 'estate@nuwara.lk',
-        phone: '0812223344',
-        address: 'Nuwara Eliya, Central Province',
-        rawMaterialType: 'Green Leaf',
-        onHandQty: 540
-    },
-    {
-        name: 'Uva Highlands Tea Growers',
-        email: 'supply@uvahighlands.lk',
-        phone: '0552234567',
-        address: 'Badulla, Uva Province',
-        rawMaterialType: 'Orthodox Black Leaf',
-        onHandQty: 320
+        productCode: 'TEA005',
+        name: 'Earl Grey',
+        category: 'Black Tea',
+        teaType: 'Flavored',
+        price: 1400,
+        stockQuantity: 100,
+        reorderLevel: 20,
+        image: 'https://images.unsplash.com/photo-1576092768241-dec231879fc3'
     }
 ];
 
 const seedData = async () => {
     try {
         await mongoose.connect(process.env.MONGO_URI);
-        console.log('✅ Connected to MongoDB Atlas...');
+        console.log('Connected to DB for seeding...');
 
-        // Drop existing data
+        // Clear existing data
         await Product.deleteMany();
-        await User.deleteMany();
-        await Supplier.deleteMany();
+        console.log('Products cleared.');
 
-        // Drop indexes to avoid conflicts
-        try {
-            await User.collection.dropIndexes();
-            await Supplier.collection.dropIndexes();
-            await Product.collection.dropIndexes();
-        } catch (e) {
-            console.log('Index cleanup skipped (first run)');
-        }
-
-        // Insert all data
+        // Seed products
         await Product.insertMany(products);
-        console.log(`✅ ${products.length} Products seeded`);
+        console.log('Products seeded.');
 
-        for (const user of users) {
-            await User.create(user);
+        // Ensure base users exist
+        const adminExists = await User.findOne({ email: 'admin@ceylonsync.com' });
+        if (!adminExists) {
+            await User.create({
+                name: 'Admin User',
+                email: 'admin@ceylonsync.com',
+                password: 'admin123',
+                role: 'admin'
+            });
+            console.log('Admin user created.');
         }
-        console.log(`✅ ${users.length} Users seeded (admin / customer / employee)`);
 
-        await Supplier.insertMany(suppliers);
-        console.log(`✅ ${suppliers.length} Suppliers seeded`);
+        const customerExists = await User.findOne({ email: 'customer@gmail.com' });
+        if (!customerExists) {
+            await User.create({
+                name: 'Test Customer',
+                email: 'customer@gmail.com',
+                password: 'password123',
+                role: 'customer'
+            });
+            console.log('Customer user created.');
+        }
 
-        console.log('\n🎉 SEED COMPLETE! Credentials:');
-        console.log('   Admin:    admin@ceylonsync.com / admin123');
-        console.log('   Customer: customer@gmail.com / customer123');
-        console.log('   Employee: employee@ceylonsync.com / employee123');
+        // Seed Suppliers
+        await Supplier.deleteMany();
+        await Supplier.insertMany([
+            {
+                name: 'Nuwara Eliya Tea Estates',
+                email: 'supply@nuwara.com',
+                phone: '0521122334',
+                address: 'Nuwara Eliya, Sri Lanka',
+                rawMaterialType: 'Green Leaf',
+                onHandQty: 5000
+            },
+            {
+                name: 'Kandy Hill Plantations',
+                email: 'kandy@tea.com',
+                phone: '0812233445',
+                address: 'Kandy, Sri Lanka',
+                rawMaterialType: 'Fertilizer',
+                onHandQty: 1200
+            }
+        ]);
+        console.log('Suppliers seeded.');
 
-        process.exit(0);
+        console.log('Seeding completed successfully!');
+        process.exit();
     } catch (error) {
-        console.error('❌ Seed Error:', error.message);
+        console.error('Seeding failed:', error);
         process.exit(1);
     }
 };
