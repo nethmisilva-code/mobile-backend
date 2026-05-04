@@ -1,20 +1,24 @@
 const express = require('express');
 const {
     getEmployees,
-    getEmployeeProfile,
     createEmployee,
-    getEmployeePayroll,
-    generatePayroll
+    updateEmployee,
+    deleteEmployee
 } = require('../controllers/employees');
-
-const { protect, authorize } = require('../middleware/auth');
 
 const router = express.Router();
 
-router.get('/', protect, authorize('admin', 'staff'), getEmployees);
-router.post('/', protect, authorize('admin'), createEmployee);
-router.get('/me', protect, authorize('employee'), getEmployeeProfile);
-router.post('/payroll', protect, authorize('admin'), generatePayroll);
-router.get('/:id/payroll', protect, getEmployeePayroll);
+const { protect, authorize } = require('../middleware/auth');
+
+router.use(protect);
+router.use(authorize('admin', 'staff'));
+
+router.route('/')
+    .get(getEmployees)
+    .post(createEmployee);
+
+router.route('/:id')
+    .put(updateEmployee)
+    .delete(deleteEmployee);
 
 module.exports = router;
