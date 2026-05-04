@@ -1,37 +1,50 @@
 const mongoose = require('mongoose');
 const dotenv = require('dotenv');
-const User = require('../models/User');
 const Product = require('../models/Product');
+const User = require('../models/User');
 
-dotenv.config({ path: './.env' });
+dotenv.config();
 
 const products = [
     {
-        productCode: 'TEA001',
-        name: 'Ceylon BOP Tea',
+        productCode: 'TEA-BLK-001',
+        name: 'Ceylon Black BOP',
         category: 'Black Tea',
         teaType: 'BOP',
-        price: 2800,
-        stockQuantity: 100,
-        reorderLevel: 20
+        price: 2500,
+        stockQuantity: 10, 
+        reorderLevel: 20,
+        image: 'https://images.unsplash.com/photo-1594631252845-29fc458631b6?q=80&w=800&auto=format&fit=crop'
     },
     {
-        productCode: 'TEA002',
-        name: 'Green Leaf Tea',
+        productCode: 'TEA-GRN-002',
+        name: 'Pure Green Leaf',
         category: 'Green Tea',
         teaType: 'Green',
         price: 1800,
         stockQuantity: 50,
-        reorderLevel: 15
+        reorderLevel: 15,
+        image: 'https://images.unsplash.com/photo-1563911191470-353235b2e930?q=80&w=800&auto=format&fit=crop'
     },
     {
-        productCode: 'TEA003',
-        name: 'Dust Tea Pack',
-        category: 'Black Tea',
-        teaType: 'Dust',
-        price: 950,
-        stockQuantity: 200,
-        reorderLevel: 50
+        productCode: 'TEA-WHT-003',
+        name: 'Silver Tips White',
+        category: 'White Tea',
+        teaType: 'Tips',
+        price: 8500,
+        stockQuantity: 5, 
+        reorderLevel: 10,
+        image: 'https://images.unsplash.com/photo-1576092768241-dec231879fc3?q=80&w=800&auto=format&fit=crop'
+    },
+    {
+        productCode: 'TEA-PRM-004',
+        name: 'Organic Earl Grey',
+        category: 'Premium',
+        teaType: 'Infusion',
+        price: 3200,
+        stockQuantity: 40,
+        reorderLevel: 10,
+        image: 'https://images.unsplash.com/photo-1597481499750-3e6b22637e12?q=80&w=800&auto=format&fit=crop'
     }
 ];
 
@@ -59,20 +72,25 @@ const users = [
 const seedData = async () => {
     try {
         await mongoose.connect(process.env.MONGO_URI);
+        console.log('Connected to Atlas for Seeding...');
         
-        // Clear existing
         await Product.deleteMany();
         await User.deleteMany();
         
-        // Add data
+        try {
+            await User.collection.dropIndexes();
+            console.log('Old database indexes cleared.');
+        } catch (e) {
+            console.log('No old indexes to clear.');
+        }
+
         await Product.insertMany(products);
         
-        // Use create for users to trigger password hashing middleware
         for (const user of users) {
             await User.create(user);
         }
         
-        console.log('Users and Products Seeded Successfully!');
+        console.log('Final System Data Seeded Successfully!');
         process.exit();
     } catch (error) {
         console.error('Error seeding data:', error);

@@ -3,21 +3,21 @@ const mongoose = require('mongoose');
 const ProductSchema = new mongoose.Schema({
     productCode: {
         type: String,
-        required: [true, 'Please add a product code'],
+        required: [true, 'Please add a unique product code'],
         unique: true
     },
     name: {
         type: String,
-        required: [true, 'Please add a name'],
-        trim: true
+        required: [true, 'Please add a name']
     },
     category: {
         type: String,
-        required: [true, 'Please add a category']
+        required: [true, 'Please select a category'],
+        enum: ['Black Tea', 'Green Tea', 'White Tea', 'Premium']
     },
     teaType: {
         type: String,
-        required: [true, 'Please add a tea type']
+        required: [true, 'Please specify tea type (e.g. BOP, Tips)']
     },
     price: {
         type: Number,
@@ -25,34 +25,30 @@ const ProductSchema = new mongoose.Schema({
     },
     stockQuantity: {
         type: Number,
-        required: [true, 'Please add stock quantity'],
-        default: 0
+        required: [true, 'Please add quantity on hand']
     },
     reorderLevel: {
         type: Number,
-        required: [true, 'Please add reorder level'],
         default: 10
     },
-    isActive: {
+    isAvailable: {
         type: Boolean,
         default: true
     },
     image: {
         type: String,
-        default: 'no-photo.jpg'
+        default: 'https://images.unsplash.com/photo-1594631252845-29fc458631b6'
     },
     createdAt: {
         type: Date,
         default: Date.now
     }
-}, {
-    toJSON: { virtuals: true },
-    toObject: { virtuals: true }
 });
 
-// Virtual for inStock status
-ProductSchema.virtual('inStock').get(function() {
-    return this.stockQuantity > 0;
+// Auto-update availability based on stock
+ProductSchema.pre('save', function(next) {
+    this.isAvailable = this.stockQuantity > 0;
+    next();
 });
 
 module.exports = mongoose.model('Product', ProductSchema);

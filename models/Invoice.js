@@ -3,8 +3,8 @@ const mongoose = require('mongoose');
 const InvoiceSchema = new mongoose.Schema({
     invoiceNumber: {
         type: String,
-        unique: true,
-        required: true
+        required: true,
+        unique: true
     },
     order: {
         type: mongoose.Schema.ObjectId,
@@ -25,12 +25,7 @@ const InvoiceSchema = new mongoose.Schema({
         type: Number,
         required: true
     },
-    invoiceStatus: {
-        type: String,
-        enum: ['issued', 'paid', 'cancelled'],
-        default: 'issued'
-    },
-    issuedAt: {
+    issueDate: {
         type: Date,
         default: Date.now
     }

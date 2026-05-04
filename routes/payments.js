@@ -1,21 +1,24 @@
 const express = require('express');
 const {
     getPayments,
-    createPayment,
-    verifyPayment
+    updatePaymentStatus,
+    getInvoices
 } = require('../controllers/payments');
-
-const { protect, authorize } = require('../middleware/auth');
 
 const router = express.Router();
 
-router
-    .route('/')
-    .get(protect, getPayments)
-    .post(protect, authorize('customer'), createPayment);
+const { protect, authorize } = require('../middleware/auth');
 
-router
-    .route('/:id/verify')
-    .put(protect, authorize('admin', 'staff'), verifyPayment);
+router.use(protect);
+
+// Anyone can view invoices (filtered by user in controller)
+router.get('/invoices', getInvoices);
+
+// Admin only for list and verification
+router.route('/')
+    .get(authorize('admin', 'staff'), getPayments);
+
+router.route('/:id')
+    .put(authorize('admin', 'staff'), updatePaymentStatus);
 
 module.exports = router;

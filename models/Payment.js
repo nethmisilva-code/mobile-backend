@@ -23,13 +23,13 @@ const PaymentSchema = new mongoose.Schema({
     },
     paymentStatus: {
         type: String,
-        enum: ['pending', 'paid', 'failed'],
+        enum: ['pending', 'verified', 'rejected'],
         default: 'pending'
     },
     transactionReference: {
         type: String
     },
-    receiptUrl: {
+    receiptImage: {
         type: String
     },
     amount: {
