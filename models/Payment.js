@@ -1,19 +1,18 @@
 const mongoose = require('mongoose');
 
 const PaymentSchema = new mongoose.Schema({
-    paymentNumber: {
+    paymentId: {
         type: String,
-        unique: true,
-        required: true
+        required: true,
+        unique: true
     },
     order: {
         type: mongoose.Schema.ObjectId,
         ref: 'Order',
         required: true
     },
-    customer: {
-        type: mongoose.Schema.ObjectId,
-        ref: 'User',
+    amount: {
+        type: Number,
         required: true
     },
     paymentMethod: {
@@ -26,18 +25,8 @@ const PaymentSchema = new mongoose.Schema({
         enum: ['pending', 'verified', 'rejected'],
         default: 'pending'
     },
-    transactionReference: {
-        type: String
-    },
     receiptImage: {
         type: String
-    },
-    amount: {
-        type: Number,
-        required: true
-    },
-    paidAt: {
-        type: Date
     },
     createdAt: {
         type: Date,
