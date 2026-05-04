@@ -2,20 +2,20 @@ const express = require('express');
 const {
     getOrders,
     createOrder,
-    updateOrderStatus
+    updateOrder
 } = require('../controllers/orders');
-
-const { protect, authorize } = require('../middleware/auth');
 
 const router = express.Router();
 
-router
-    .route('/')
-    .get(protect, getOrders)
-    .post(protect, authorize('customer'), createOrder);
+const { protect, authorize } = require('../middleware/auth');
 
-router
-    .route('/:id/status')
-    .put(protect, authorize('admin', 'staff'), updateOrderStatus);
+router.use(protect);
+
+router.route('/')
+    .get(getOrders)
+    .post(createOrder);
+
+router.route('/:id')
+    .put(updateOrder);
 
 module.exports = router;
