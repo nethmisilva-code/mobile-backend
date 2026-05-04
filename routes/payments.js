@@ -1,21 +1,19 @@
 const express = require('express');
 const {
     getPayments,
+    createPayment,
     updatePaymentStatus,
-    getInvoices,
-    createPayment
+    getInvoices
 } = require('../controllers/payments');
 
 const router = express.Router();
-
 const { protect, authorize } = require('../middleware/auth');
 
 router.use(protect);
 
-// Anyone can view invoices
+// Must define /invoices BEFORE /:id to prevent route conflict
 router.get('/invoices', getInvoices);
 
-// Customers can create payments, Admins can view all
 router.route('/')
     .get(getPayments)
     .post(createPayment);
