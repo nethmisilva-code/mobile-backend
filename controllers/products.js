@@ -35,6 +35,7 @@ exports.getProduct = async (req, res, next) => {
 // @route   POST /api/products
 exports.createProduct = async (req, res, next) => {
     try {
+        req.body.isAvailable = req.body.stockQuantity > 0;
         const product = await Product.create(req.body);
         res.status(201).json({ success: true, data: product });
     } catch (error) {
@@ -46,6 +47,9 @@ exports.createProduct = async (req, res, next) => {
 // @route   PUT /api/products/:id
 exports.updateProduct = async (req, res, next) => {
     try {
+        if (req.body.stockQuantity !== undefined) {
+            req.body.isAvailable = req.body.stockQuantity > 0;
+        }
         const product = await Product.findByIdAndUpdate(req.params.id, req.body, {
             new: true,
             runValidators: true

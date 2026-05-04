@@ -3,6 +3,8 @@ const dotenv = require('dotenv');
 const Product = require('../models/Product');
 const User = require('../models/User');
 const Supplier = require('../models/Supplier');
+const Order = require('../models/Order');
+const Payment = require('../models/Payment');
 
 dotenv.config();
 
@@ -64,9 +66,24 @@ const seedData = async () => {
         await mongoose.connect(process.env.MONGO_URI);
         console.log('Connected to DB for seeding...');
 
+        // CRITICAL: Drop indexes to resolve "paymentNumber_1" duplicate key errors
+        // This clears old unique constraints that are no longer in the schema
+        try {
+            await Payment.collection.dropIndexes();
+            console.log('Payment indexes dropped.');
+        } catch (e) { console.log('No payment indexes to drop.'); }
+
+        try {
+            await Product.collection.dropIndexes();
+            console.log('Product indexes dropped.');
+        } catch (e) { console.log('No product indexes to drop.'); }
+
         // Clear existing data
         await Product.deleteMany();
-        console.log('Products cleared.');
+        await Order.deleteMany();
+        await Payment.deleteMany();
+        await Supplier.deleteMany();
+        console.log('Data cleared.');
 
         // Seed products
         await Product.insertMany(products);
@@ -96,7 +113,6 @@ const seedData = async () => {
         }
 
         // Seed Suppliers
-        await Supplier.deleteMany();
         await Supplier.insertMany([
             {
                 name: 'Nuwara Eliya Tea Estates',

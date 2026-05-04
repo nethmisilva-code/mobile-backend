@@ -44,10 +44,4 @@ const ProductSchema = new mongoose.Schema({
     }
 });
 
-// Auto-update availability based on stock
-ProductSchema.pre('save', function(next) {
-    this.isAvailable = this.stockQuantity > 0;
-    next();
-});
-
 module.exports = mongoose.model('Product', ProductSchema);
