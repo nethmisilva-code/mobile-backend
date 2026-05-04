@@ -87,14 +87,13 @@ const users = [
 const seedData = async () => {
     try {
         await mongoose.connect(process.env.MONGO_URI);
-        console.log('Connected to Atlas for FINAL Seeding...');
+        console.log('Connected to Atlas...');
         
         await Product.deleteMany();
         await User.deleteMany();
         
         try {
             await User.collection.dropIndexes();
-            console.log('Old database indexes cleared.');
         } catch (e) {}
 
         await Product.insertMany(products);
@@ -103,7 +102,7 @@ const seedData = async () => {
             await User.create(user);
         }
         
-        console.log('FINAL SEED SUCCESSFUL: 5 Products ready for demo.');
+        console.log('Final Seed Success: All images and roles set.');
         process.exit();
     } catch (error) {
         console.error('Error seeding data:', error);

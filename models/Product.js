@@ -12,12 +12,11 @@ const ProductSchema = new mongoose.Schema({
     },
     category: {
         type: String,
-        required: [true, 'Please select a category'],
-        enum: ['Black Tea', 'Green Tea', 'White Tea', 'Premium']
+        required: [true, 'Please select a category']
     },
     teaType: {
         type: String,
-        required: [true, 'Please specify tea type (e.g. BOP, Tips)']
+        required: [true, 'Please specify tea type']
     },
     price: {
         type: Number,

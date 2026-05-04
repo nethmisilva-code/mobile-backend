@@ -3,41 +3,36 @@ const Product = require('../models/Product');
 
 // @desc    Get all orders
 // @route   GET /api/orders
-// @access  Private (Admin, Staff, Customer)
 exports.getOrders = async (req, res, next) => {
     try {
-        if (!req.user || !req.user.id) {
-            return res.status(200).json({ success: true, count: 0, data: [] });
-        }
         let query;
-
-        // If user is not admin/staff, they can only see their own orders
-        if (req.user.role !== 'admin' && req.user.role !== 'staff') {
-            query = Order.find({ customer: req.user.id }).populate('items.product');
+        if (req.user && req.user.role === 'admin') {
+            // Admin sees everything, populated with customer details
+            query = Order.find().populate('customer', 'name email');
         } else {
-            query = Order.find().populate('customer', 'name email').populate('items.product');
+            // Customers see only their orders
+            query = Order.find({ customer: req.user.id });
         }
 
-        const orders = await query;
+        const orders = await query.sort('-createdAt');
         res.status(200).json({ success: true, count: orders.length, data: orders });
     } catch (error) {
-        res.status(200).json({ success: true, count: 0, data: [] });
+        res.status(400).json({ success: false, message: error.message });
     }
 };
 
-// @desc    Create new order
+// @desc    Create order
 // @route   POST /api/orders
-// @access  Private (Customer)
 exports.createOrder = async (req, res, next) => {
     try {
         req.body.customer = req.user.id;
         
-        // Generate order number
-        req.body.orderNumber = 'ORD-' + Date.now().toString().slice(-10);
-
+        // Generate unique order number
+        req.body.orderNumber = 'ORD-' + Date.now().toString().slice(-6).toUpperCase();
+        
         const order = await Order.create(req.body);
 
-        // Update stock quantity
+        // Deduct stock from products
         for (const item of req.body.items) {
             await Product.findByIdAndUpdate(item.product, {
                 $inc: { stockQuantity: -item.quantity }
@@ -46,18 +41,16 @@ exports.createOrder = async (req, res, next) => {
 
         res.status(201).json({ success: true, data: order });
     } catch (error) {
+        console.error('Order Creation Error:', error);
         res.status(400).json({ success: false, message: error.message });
     }
 };
 
 // @desc    Update order status
 // @route   PUT /api/orders/:id
-// @access  Private (Admin, Staff)
-exports.updateOrderStatus = async (req, res, next) => {
+exports.updateOrder = async (req, res, next) => {
     try {
-        const order = await Order.findByIdAndUpdate(req.params.id, {
-            orderStatus: req.body.orderStatus
-        }, {
+        const order = await Order.findByIdAndUpdate(req.params.id, req.body, {
             new: true,
             runValidators: true
         });
