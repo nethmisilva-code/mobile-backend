@@ -3,8 +3,8 @@ const mongoose = require('mongoose');
 const PaymentSchema = new mongoose.Schema({
     paymentId: {
         type: String,
-        required: true,
-        unique: true
+        unique: true,
+        sparse: true  // allows multiple docs without this field
     },
     order: {
         type: mongoose.Schema.ObjectId,
@@ -17,7 +17,7 @@ const PaymentSchema = new mongoose.Schema({
     },
     paymentMethod: {
         type: String,
-        enum: ['Cash', 'Bank Transfer'],
+        enum: ['Cash', 'Bank Transfer', 'Card'],
         required: true
     },
     paymentStatus: {

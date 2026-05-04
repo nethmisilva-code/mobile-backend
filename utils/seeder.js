@@ -2,6 +2,7 @@ const mongoose = require('mongoose');
 const dotenv = require('dotenv');
 const Product = require('../models/Product');
 const User = require('../models/User');
+const Supplier = require('../models/Supplier');
 
 dotenv.config();
 
@@ -15,7 +16,7 @@ const products = [
         stockQuantity: 15,
         reorderLevel: 5,
         isAvailable: true,
-        image: 'https://images.unsplash.com/photo-1594631252845-29fc458631b6?q=80&w=800&auto=format&fit=crop'
+        image: 'https://images.unsplash.com/photo-1571934811356-5cc061b6821f?q=80&w=800&auto=format&fit=crop'
     },
     {
         productCode: 'TEA-GRN-002',
@@ -23,10 +24,10 @@ const products = [
         category: 'Green Tea',
         teaType: 'Green',
         price: 1800,
-        stockQuantity: 0, 
+        stockQuantity: 0,
         reorderLevel: 5,
         isAvailable: false,
-        image: 'https://images.unsplash.com/photo-1563911191470-353235b2e930?q=80&w=800&auto=format&fit=crop'
+        image: 'https://images.unsplash.com/photo-1556679343-c7306c1976bc?q=80&w=800&auto=format&fit=crop'
     },
     {
         productCode: 'TEA-WHT-003',
@@ -59,7 +60,7 @@ const products = [
         stockQuantity: 25,
         reorderLevel: 5,
         isAvailable: true,
-        image: 'https://images.unsplash.com/photo-1571935441005-40347844623e?q=80&w=800&auto=format&fit=crop'
+        image: 'https://images.unsplash.com/photo-1544787219-7f47ccb76574?q=80&w=800&auto=format&fit=crop'
     }
 ];
 
@@ -84,28 +85,65 @@ const users = [
     }
 ];
 
+// 2 Pre-registered suppliers as requested
+const suppliers = [
+    {
+        name: 'Nuwara Eliya Green Leaf Estate',
+        email: 'estate@nuwara.lk',
+        phone: '0812223344',
+        address: 'Nuwara Eliya, Central Province',
+        rawMaterialType: 'Green Leaf',
+        onHandQty: 540
+    },
+    {
+        name: 'Uva Highlands Tea Growers',
+        email: 'supply@uvahighlands.lk',
+        phone: '0552234567',
+        address: 'Badulla, Uva Province',
+        rawMaterialType: 'Orthodox Black Leaf',
+        onHandQty: 320
+    }
+];
+
 const seedData = async () => {
     try {
         await mongoose.connect(process.env.MONGO_URI);
-        console.log('Connected to Atlas...');
-        
+        console.log('✅ Connected to MongoDB Atlas...');
+
+        // Drop existing data
         await Product.deleteMany();
         await User.deleteMany();
-        
+        await Supplier.deleteMany();
+
+        // Drop indexes to avoid conflicts
         try {
             await User.collection.dropIndexes();
-        } catch (e) {}
+            await Supplier.collection.dropIndexes();
+            await Product.collection.dropIndexes();
+        } catch (e) {
+            console.log('Index cleanup skipped (first run)');
+        }
 
+        // Insert all data
         await Product.insertMany(products);
-        
+        console.log(`✅ ${products.length} Products seeded`);
+
         for (const user of users) {
             await User.create(user);
         }
-        
-        console.log('Final Seed Success: All images and roles set.');
-        process.exit();
+        console.log(`✅ ${users.length} Users seeded (admin / customer / employee)`);
+
+        await Supplier.insertMany(suppliers);
+        console.log(`✅ ${suppliers.length} Suppliers seeded`);
+
+        console.log('\n🎉 SEED COMPLETE! Credentials:');
+        console.log('   Admin:    admin@ceylonsync.com / admin123');
+        console.log('   Customer: customer@gmail.com / customer123');
+        console.log('   Employee: employee@ceylonsync.com / employee123');
+
+        process.exit(0);
     } catch (error) {
-        console.error('Error seeding data:', error);
+        console.error('❌ Seed Error:', error.message);
         process.exit(1);
     }
 };

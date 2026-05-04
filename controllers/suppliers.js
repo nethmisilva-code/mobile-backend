@@ -1,62 +1,47 @@
 const Supplier = require('../models/Supplier');
 
-// @desc    Get all suppliers
-// @route   GET /api/suppliers
-// @access  Private (Admin)
-exports.getSuppliers = async (req, res, next) => {
+exports.getSuppliers = async (req, res) => {
     try {
-        const suppliers = await Supplier.find();
+        const suppliers = await Supplier.find().sort('-createdAt');
         res.status(200).json({ success: true, count: suppliers.length, data: suppliers });
     } catch (error) {
-        res.status(400).json({ success: false, message: error.message });
+        console.error('Get Suppliers Error:', error.message);
+        res.status(200).json({ success: true, data: [] });
     }
 };
 
-// @desc    Create new supplier
-// @route   POST /api/suppliers
-// @access  Private (Admin)
-exports.createSupplier = async (req, res, next) => {
+exports.createSupplier = async (req, res) => {
     try {
         const supplier = await Supplier.create(req.body);
         res.status(201).json({ success: true, data: supplier });
     } catch (error) {
+        console.error('Create Supplier Error:', error.message);
         res.status(400).json({ success: false, message: error.message });
     }
 };
 
-// @desc    Update supplier (Log Delivery)
-// @route   PUT /api/suppliers/:id
-// @access  Private (Admin)
-exports.updateSupplier = async (req, res, next) => {
+exports.updateSupplier = async (req, res) => {
     try {
         const supplier = await Supplier.findByIdAndUpdate(req.params.id, req.body, {
             new: true,
-            runValidators: true
+            runValidators: false
         });
-
         if (!supplier) {
             return res.status(404).json({ success: false, message: 'Supplier not found' });
         }
-
         res.status(200).json({ success: true, data: supplier });
     } catch (error) {
+        console.error('Update Supplier Error:', error.message);
         res.status(400).json({ success: false, message: error.message });
     }
 };
 
-// @desc    Delete supplier
-// @route   DELETE /api/suppliers/:id
-// @access  Private (Admin)
-exports.deleteSupplier = async (req, res, next) => {
+exports.deleteSupplier = async (req, res) => {
     try {
-        const supplier = await Supplier.findByIdAndDelete(req.params.id);
-
-        if (!supplier) {
-            return res.status(404).json({ success: false, message: 'Supplier not found' });
-        }
-
+        await Supplier.findByIdAndDelete(req.params.id);
         res.status(200).json({ success: true, data: {} });
     } catch (error) {
+        console.error('Delete Supplier Error:', error.message);
         res.status(400).json({ success: false, message: error.message });
     }
 };

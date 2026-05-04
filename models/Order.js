@@ -15,8 +15,7 @@ const OrderSchema = new mongoose.Schema({
         {
             product: {
                 type: mongoose.Schema.ObjectId,
-                ref: 'Product',
-                required: true
+                ref: 'Product'
             },
             name: String,
             quantity: {
@@ -44,14 +43,11 @@ const OrderSchema = new mongoose.Schema({
         enum: ['pending', 'paid', 'failed'],
         default: 'pending'
     },
-    shippingAddress: {
-        type: String,
-        required: [true, 'Please add a shipping address']
-    },
-    contactPhone: {
-        type: String,
-        required: [true, 'Please add a contact phone']
-    },
+    // Accept both field names for compatibility
+    shippingAddress: { type: String },
+    deliveryAddress: { type: String },
+    contactPhone: { type: String },
+    phone: { type: String },
     createdAt: {
         type: Date,
         default: Date.now

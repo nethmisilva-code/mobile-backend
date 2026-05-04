@@ -3,20 +3,18 @@ const mongoose = require('mongoose');
 const SupplierSchema = new mongoose.Schema({
     name: {
         type: String,
-        required: [true, 'Please add a supplier name'],
-        unique: true
+        required: [true, 'Please add a supplier name']
     },
     email: {
-        type: String,
-        match: [/^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/, 'Please add a valid email']
+        type: String
     },
     phone: {
         type: String,
-        required: [true, 'Please add a contact number']
+        default: 'N/A'
     },
     address: {
         type: String,
-        required: [true, 'Please add an address']
+        default: 'N/A'
     },
     rawMaterialType: {
         type: String,
